@@ -1,0 +1,102 @@
+/* Google Fonts - Cinzel (Decorative) & Lato (Sans) */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Cosmic Dharma Palette */
+  --bg-deep: #0d0d15;       /* Mountain Shadow */
+  --bg-indigo: #1a1b41;     /* Night Sky */
+  --gold-starlight: #f2e8cf; /* Soft Star Gold */
+  --gold-accent: #DAA520;    /* Rich Gold */
+  
+  --glass-blue: rgba(26, 27, 65, 0.6);
+  --glass-border: rgba(242, 232, 207, 0.2);
+}
+
+body {
+  font-family: 'Lato', sans-serif;
+  color: var(--gold-starlight);
+  overflow-x: hidden;
+  background-color: var(--bg-deep); /* Fallback */
+}
+
+h1, h2, h3, .font-spiritual {
+    font-family: 'Cinzel', serif;
+}
+
+/* --- Spiritual Utilities --- */
+.cosmic-card {
+    background: rgba(13, 13, 21, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(218, 165, 32, 0.05);
+}
+
+.cosmic-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    transition: all 0.5s ease;
+}
+
+.cosmic-input:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--gold-accent);
+    box-shadow: 0 0 15px rgba(218, 165, 32, 0.3);
+    outline: none;
+}
+
+.cosmic-btn {
+    background: linear-gradient(135deg, rgba(218, 165, 32, 0.8), rgba(184, 134, 11, 0.8));
+    color: #0d0d15;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border: 1px solid var(--gold-accent);
+    box-shadow: 0 0 10px rgba(218, 165, 32, 0.4);
+    transition: all 0.5s ease;
+}
+
+.cosmic-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(218, 165, 32, 0.9));
+    box-shadow: 0 0 25px rgba(218, 165, 32, 0.6);
+    transform: scale(1.02);
+}
+
+/* Animations */
+.mandala-spin {
+    animation: spin 60s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.star-twinkle {
+    animation: twinkle 4s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(242, 232, 207, 0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-accent);
+}
