@@ -63,7 +63,7 @@ const ChatPage = () => {
     loadConversations();
     const socket = getSocket();
     if (socket) {
-      socket.on('new_message', (message) => {
+      socket.on('new_message', (message) => { if (document.hidden && Notification.permission === 'granted' && message.senderId !== user.id) { new Notification('New Dharma Message', { body: message.content }); }
         if (selectedConversation && message.conversationId === selectedConversation.id) {
           setMessages((prev) => [...prev, message]);
            socket.emit('mark_read', { conversationId: selectedConversation.id });
