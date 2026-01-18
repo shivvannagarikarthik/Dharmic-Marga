@@ -63,7 +63,7 @@ const ChatPage = () => {
     loadConversations();
     const socket = getSocket();
     if (socket) {
-      socket.on('new_message', (message) => { console.log('NOTIF CHECK:', Notification.permission, message.senderId, user.id); if (Notification.permission === 'granted' && message.senderId !== user.id) { new Notification('New Dharma Message', { body: message.content }); }
+      socket.on('new_message', (message) => { console.log('NOTIF CHECK:', Notification.permission, message.senderId, user.id); if (Notification.permission === 'granted' && message.senderId !== user.id) { navigator.serviceWorker.ready.then(reg => reg.showNotification('New Dharma Message', { body: message.content, icon: '/vite.svg', vibrate: [200] })); }
         if (selectedConversation && message.conversationId === selectedConversation.id) {
           setMessages((prev) => [...prev, message]);
            socket.emit('mark_read', { conversationId: selectedConversation.id });
