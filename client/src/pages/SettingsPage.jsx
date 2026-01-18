@@ -1,10 +1,12 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import MediaUpload from '../components/MediaUpload';
 
 const SettingsPage = () => {
-    const { user, login } = useContext(AuthContext); // login used to update user context if needed
+    const { user, login } = useContext(AuthContext); 
+    const navigate = useNavigate();
     const [username, setUsername] = useState(user?.username || '');
     const [bio, setBio] = useState(user?.bio || '');
     const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl);
@@ -24,11 +26,10 @@ const SettingsPage = () => {
         setLoading(true);
         try {
             await api.put('/api/users/profile', { username, bio, avatarUrl });
-            alert('Profile updated!');
-            // Ideally force refresh user context, simplified here
+            alert('Spirit Connection Updated (Profile Saved)');
         } catch (err) {
             console.error(err);
-            alert('Failed to update');
+            alert('Alignment failed');
         } finally {
             setLoading(false);
         }
@@ -47,49 +48,66 @@ const SettingsPage = () => {
 
     const handleSaveSecurity = () => {
         if (lockEnabled && pin.length !== 4) {
-            alert('PIN must be 4 digits');
+            alert('Key must be 4 digits');
             return;
         }
         localStorage.setItem('app_lock_enabled', lockEnabled);
         localStorage.setItem('app_pin', pin);
-        alert('Security settings saved');
+        alert('Sanctuary Secured');
     };
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white flex justify-center p-8">
-            <div className="w-full max-w-2xl">
-                <div className="flex items-center mb-8 gap-4">
-                    <button onClick={() => window.location.href='/'} className="p-2 bg-gray-800 rounded-full hover:bg-gray-700">←</button>
-                    <h1 className="text-3xl font-bold">Settings</h1>
+        <div className="h-[100dvh] flex flex-col items-center p-4 md:p-8 relative overflow-hidden text-[#f2e8cf] font-spiritual">
+            {/* Background */}
+             <div className="fixed inset-0 z-[-1]">
+                <img 
+                    src="/bg-himalayas.png" 
+                    alt="Himalayan Sky" 
+                    className="w-full h-full object-cover object-bottom md:object-center opacity-40"
+                />
+                <div className="absolute inset-0 bg-black/80"></div>
+            </div>
+
+            <div className="w-full max-w-lg relative z-10 flex flex-col gap-6">
+                
+                {/* Header */}
+                <div className="flex items-center gap-4 border-b border-[#DAA520]/30 pb-4">
+                    <button onClick={() => navigate('/chat')} className="w-10 h-10 rounded-full border border-[#DAA520]/50 flex items-center justify-center hover:bg-[#DAA520]/20 text-[#DAA520] transition bg-black/40 backdrop-blur-md">
+                        <span className="text-xl pb-1">←</span>
+                    </button>
+                    <h1 className="text-xl md:text-3xl font-bold tracking-[0.2em] uppercase text-[#DAA520]">Sanctuary Settings</h1>
                 </div>
 
-                <div className="bg-gray-800 p-8 rounded-2xl shadow-xl space-y-8">
+                <div className="bg-black/40 backdrop-blur-md border border-[#f2e8cf]/10 p-6 md:p-8 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] space-y-8 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                    
                     {/* Profile Section */}
                     <div>
-                        <h2 className="text-xl font-bold mb-4 border-b border-gray-700 pb-2">Profile</h2>
-                        <div className="flex flex-col items-center mb-6">
-                            <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-700 mb-4 relative group">
+                        <h2 className="text-[#DAA520] text-sm uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                             <span>☸</span> Essence (Profile)
+                        </h2>
+                        
+                        <div className="flex flex-col items-center mb-8">
+                            <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-[#DAA520] mb-4 relative group shadow-[0_0_20px_rgba(218,165,32,0.3)]">
                                 <img src={avatarUrl || 'https://via.placeholder.com/150'} className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer">
-                                    <MediaUpload onFileSelect={handleAvatarUpload} />
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition">
+                                    <div className="text-[10px] uppercase tracking-widest text-[#DAA520]"><MediaUpload onFileSelect={handleAvatarUpload} /></div>
                                 </div>
                             </div>
-                            <p className="text-sm text-gray-400">Click to change photo</p>
                         </div>
                         
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">Username</label>
+                        <div className="space-y-6">
+                            <div className="group">
+                                <label className="block text-[10px] uppercase tracking-[0.2em] text-[#f2e8cf]/50 mb-2">Identity Name</label>
                                 <input 
-                                    className="w-full bg-gray-700 p-3 rounded"
+                                    className="w-full bg-black/30 border-b border-[#DAA520]/30 focus:border-[#DAA520] text-[#f2e8cf] py-2 px-1 outline-none transition tracking-wide"
                                     value={username}
                                     onChange={e => setUsername(e.target.value)}
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">Bio</label>
+                            <div className="group">
+                                <label className="block text-[10px] uppercase tracking-[0.2em] text-[#f2e8cf]/50 mb-2">Mantra (Bio)</label>
                                 <textarea 
-                                    className="w-full bg-gray-700 p-3 rounded"
+                                    className="w-full bg-black/30 border-b border-[#DAA520]/30 focus:border-[#DAA520] text-[#f2e8cf] py-2 px-1 outline-none transition tracking-wide h-20 resize-none"
                                     value={bio}
                                     onChange={e => setBio(e.target.value)}
                                 />
@@ -97,48 +115,48 @@ const SettingsPage = () => {
                             <button 
                                 onClick={handleUpdateProfile}
                                 disabled={loading}
-                                className="bg-purple-600 px-6 py-2 rounded font-bold hover:bg-purple-700 disabled:opacity-50"
+                                className="w-full py-3 border border-[#DAA520] text-[#DAA520] hover:bg-[#DAA520] hover:text-black transition uppercase text-xs tracking-[0.3em] font-bold rounded-sm shadow-[0_0_15px_rgba(218,165,32,0.1)]"
                             >
-                                {loading ? 'Saving...' : 'Save Profile'}
+                                {loading ? 'Aligning...' : 'Update Essence'}
                             </button>
                         </div>
                     </div>
 
                     {/* Security Section */}
-                    <div>
-                         <h2 className="text-xl font-bold mb-4 border-b border-gray-700 pb-2 flex items-center gap-2">
-                            Security <span className="text-xs bg-yellow-500 text-black px-2 rounded">New</span>
+                    <div className="pt-6 border-t border-[#f2e8cf]/10">
+                         <h2 className="text-[#DAA520] text-sm uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                            <span>🔒</span> Protection (Security)
                          </h2>
-                         <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <label className="text-lg">App Lock (Biometric/PIN)</label>
+                         <div className="space-y-6">
+                            <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/5">
+                                <label className="text-sm tracking-widest text-[#f2e8cf]/80">App Lock (PIN)</label>
                                 <input 
                                     type="checkbox" 
                                     checked={lockEnabled} 
                                     onChange={e => setLockEnabled(e.target.checked)}
-                                    className="w-6 h-6 accent-purple-600"
+                                    className="w-5 h-5 accent-[#DAA520]"
                                 />
                             </div>
                             
                             {lockEnabled && (
-                                <div>
-                                    <label className="block text-sm text-gray-400 mb-1">Set 4-Digit PIN</label>
+                                <div className="animate-fade-in">
+                                    <label className="block text-[10px] uppercase tracking-[0.2em] text-[#f2e8cf]/50 mb-2">Secret Key (4 Digits)</label>
                                     <input 
                                         type="password" 
                                         maxLength="4"
                                         value={pin}
                                         onChange={e => setPin(e.target.value)}
-                                        className="w-full bg-gray-700 p-3 rounded tracking-widest"
-                                        placeholder="0000"
+                                        className="w-full bg-black/30 border-b border-[#DAA520]/30 focus:border-[#DAA520] text-[#f2e8cf] py-2 px-1 text-center text-2xl tracking-[1em] outline-none"
+                                        placeholder="••••"
                                     />
                                 </div>
                             )}
 
                             <button 
                                 onClick={handleSaveSecurity}
-                                className="bg-green-600 px-6 py-2 rounded font-bold hover:bg-green-700"
+                                className="w-full py-3 bg-[#DAA520]/10 hover:bg-[#DAA520]/20 text-[#DAA520] border border-[#DAA520]/30 transition uppercase text-xs tracking-[0.3em] font-bold rounded-sm"
                             >
-                                Save Security Settings
+                                Seal Sanctuary
                             </button>
                          </div>
                     </div>

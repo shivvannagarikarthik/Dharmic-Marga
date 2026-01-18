@@ -205,7 +205,7 @@ const ChatPage = () => {
 
   return (
     <div className="h-[100dvh] flex text-[#f2e8cf] font-sans antialiased overflow-hidden relative">
-      {/* Background Image (Responsive Position) */}
+      {/* Background Image (Responsive Position - Center on Mobile) */}
       <div className="fixed inset-0 z-[-1]">
           <img 
             src="/bg-om-cosmic.png" 
