@@ -220,7 +220,7 @@ const ChatPage = () => {
       {showTimerModal && <DisappearingTimerModal currentTimer={selectedConversation?.messageTimer} onClose={() => setShowTimerModal(false)} onSetTimer={val => {const s=getSocket(); if(s) s.emit('update_disappearing_timer', {conversationId: selectedConversation.id, timer: val}); setShowTimerModal(false); }} />}
 
       {/* --- SIDEBAR --- */}
-      <div className="w-80 flex flex-col border-r border-[#f2e8cf]/20 bg-black/40 backdrop-blur-md">
+      <div className={`w-full md:w-80 flex flex-col border-r border-[#f2e8cf]/20 bg-black/40 backdrop-blur-md ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
           {/* Header */}
           <div className="p-6 border-b border-[#f2e8cf]/20 flex justify-between items-center bg-black/20">
              <div onClick={() => window.location.href='/settings'} className="cursor-pointer group flex items-center gap-3">
@@ -263,12 +263,15 @@ const ChatPage = () => {
       </div>
 
       {/* --- MAIN CHAT --- */}
-      <div className="flex-1 flex flex-col relative">
+      <div className={`flex-1 flex flex-col relative ${!selectedConversation ? 'hidden md:flex' : 'flex'}`}>
           
           {selectedConversation ? (
               <>
                 <div className="p-4 border-b border-[#f2e8cf]/20 flex justify-between items-center z-10 bg-black/50 backdrop-blur-md">
                     <div className="flex items-center gap-4 cursor-pointer" onClick={() => { if(selectedConversation.type === 'group') setShowGroupInfo(true); }}>
+                        {/* Back Button for Mobile */}
+                        <button onClick={() => setSelectedConversation(null)} className="md:hidden text-[#DAA520] mr-2 text-2xl font-bold">←</button>
+
                         <div className={`w-12 h-12 rounded-full border border-[#DAA520]/60 flex items-center justify-center text-[#DAA520] font-spiritual text-xl ${selectedConversation.type === 'group' ? 'bg-blue-900/30' : 'bg-transparent'}`}>
                              {selectedConversation.type === 'group' ? '👥' : selectedConversation.name.charAt(0)}
                         </div>
