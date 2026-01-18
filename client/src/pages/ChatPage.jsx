@@ -139,7 +139,9 @@ const ChatPage = () => {
   const loadMessages = async (conversationId) => {
     try {
       const response = await api.get(`/api/chat/messages/${conversationId}`);
-      setMessages(response.data);
+      // Client-side Sort to prevent order jumping
+      const sorted = response.data.sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
+      setMessages(sorted);
       const socket = getSocket();
       if (socket) {
           socket.emit('join_conversation', conversationId);
@@ -202,16 +204,15 @@ const ChatPage = () => {
   }, [selectedConversation, user.id]);
 
   return (
-    <div className="h-screen flex text-[#f2e8cf] font-sans antialiased overflow-hidden relative">
-      {/* Background Image (Shifted for Chat) - 10rem is half of sidebar (20rem) */}
+    <div className="h-[100dvh] flex text-[#f2e8cf] font-sans antialiased overflow-hidden relative">
+      {/* Background Image (Responsive Position) */}
       <div className="fixed inset-0 z-[-1]">
           <img 
             src="/bg-om-cosmic.png" 
             alt="Cosmic Om Background" 
-            className="w-full h-full object-cover transition-all duration-1000 ease-in-out"
-            style={{ objectPosition: 'calc(50% + 10rem) center' }}
+            className="w-full h-full object-cover transition-all duration-1000 ease-in-out md:object-[calc(50%+10rem)_center] object-center"
           />
-          <div className="absolute inset-0 bg-black/30"></div> {/* Slightly Lighter Overlay for Om */}
+          <div className="absolute inset-0 bg-black/30"></div>
       </div>
 
        {showCallInterface && <CallInterface receiverId={selectedConversation?.Users?.[0]?.id} callType={callType} onClose={() => setShowCallInterface(false)} />}
@@ -268,15 +269,17 @@ const ChatPage = () => {
           {selectedConversation ? (
               <>
                 <div className="p-4 border-b border-[#f2e8cf]/20 flex justify-between items-center z-10 bg-black/50 backdrop-blur-md">
-                    <div className="flex items-center gap-4 cursor-pointer" onClick={() => { if(selectedConversation.type === 'group') setShowGroupInfo(true); }}>
-                        {/* Back Button for Mobile */}
-                        <button onClick={() => setSelectedConversation(null)} className="md:hidden text-[#DAA520] mr-2 text-2xl font-bold">←</button>
+                    <div className="flex items-center gap-2 md:gap-4 cursor-pointer" onClick={() => { if(selectedConversation.type === 'group') setShowGroupInfo(true); }}>
+                        {/* Back Button for Mobile - Improved Size */}
+                        <button onClick={() => setSelectedConversation(null)} className="md:hidden text-[#DAA520] mr-1 p-2 active:bg-white/10 rounded-full transition">
+                            <span className="text-xl">←</span>
+                        </button>
 
-                        <div className={`w-12 h-12 rounded-full border border-[#DAA520]/60 flex items-center justify-center text-[#DAA520] font-spiritual text-xl ${selectedConversation.type === 'group' ? 'bg-blue-900/30' : 'bg-transparent'}`}>
+                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full border border-[#DAA520]/60 flex items-center justify-center text-[#DAA520] font-spiritual text-base md:text-xl ${selectedConversation.type === 'group' ? 'bg-blue-900/30' : 'bg-transparent'}`}>
                              {selectedConversation.type === 'group' ? '👥' : selectedConversation.name.charAt(0)}
                         </div>
                         <div>
-                            <h2 className="text-xl font-spiritual text-[#f2e8cf] tracking-widest flex items-center gap-3 font-bold drop-shadow-md">
+                            <h2 className="text-lg md:text-xl font-spiritual text-[#f2e8cf] tracking-widest flex items-center gap-3 font-bold drop-shadow-md">
                                 {selectedConversation.name === 'AI Assistant' ? 'Dharma Guide' : selectedConversation.name}
                                 {selectedConversation.type !== 'group' && otherUserStatus?.status === 'online' && <span className="w-2 h-2 bg-[#DAA520] rounded-full shadow-[0_0_10px_#DAA520] animate-pulse"></span>}
                             </h2>
@@ -285,24 +288,24 @@ const ChatPage = () => {
                             </p>
                         </div>
                     </div>
-                    <div className="flex gap-4 text-[#f2e8cf]/80">
-                        <button onClick={() => setShowTimerModal(true)} className="hover:text-[#DAA520] transition hover:scale-110">⏳</button>
-                        <button onClick={() => startCall('voice')} className="hover:text-[#DAA520] transition hover:scale-110">📞</button>
-                        <button onClick={() => startCall('video')} className="hover:text-[#DAA520] transition hover:scale-110">📹</button>
+                    <div className="flex gap-2 md:gap-4 text-[#f2e8cf]/80">
+                         {/* Icons hidden or smaller on very small screens if needed, but flex gap handles it */}
+                        <button onClick={() => setShowTimerModal(true)} className="hover:text-[#DAA520] transition hover:scale-110 p-2">⏳</button>
+                        <button onClick={() => startCall('voice')} className="hover:text-[#DAA520] transition hover:scale-110 p-2">📞</button>
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-8 space-y-8 z-10">
-                    {messages.map(m => {
+                <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 md:space-y-8 z-10">
+                    {messages.sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt)).map(m => {
                         const isMe = m.senderId === user.id;
                         return (
                             <div key={m.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                                 {m.ReplyTo && <div className="text-xs text-[#f2e8cf]/70 mb-1 border-l border-[#DAA520] pl-2 italic">Reflecting: {m.ReplyTo.content}</div>}
                                 
-                                <div className="group flex items-end gap-3 max-w-[70%]">
+                                <div className="group flex items-end gap-3 max-w-[85%] md:max-w-[70%]">
                                     {!isMe && <MessageActions message={m} isMe={isMe} onReply={handleReply} onReact={handleReact} />}
                                     
-                                    <div className={`p-4 backdrop-blur-md border ${isMe ? 'bg-[#DAA520]/20 border-[#DAA520]/50 text-[#f2e8cf] rounded-t-xl rounded-bl-xl shadow-[0_0_15px_rgba(218,165,32,0.2)]' : 'bg-black/60 border-white/20 text-[#f2e8cf] rounded-t-xl rounded-br-xl'}`}>
+                                    <div className={`p-3 md:p-4 backdrop-blur-md border ${isMe ? 'bg-[#DAA520]/20 border-[#DAA520]/50 text-[#f2e8cf] rounded-t-xl rounded-bl-xl shadow-[0_0_15px_rgba(218,165,32,0.2)]' : 'bg-black/60 border-white/20 text-[#f2e8cf] rounded-t-xl rounded-br-xl'}`}>
                                         {m.type === 'text' ? <p className="text-sm leading-relaxed tracking-wide font-normal">{m.content}</p> : <MediaMessage message={m} isSent={isMe} />}
                                         <div className="flex justify-end items-center gap-2 mt-2 opacity-60">
                                             <span className="text-[10px] uppercase tracking-widest">{new Date(m.createdAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
@@ -318,12 +321,12 @@ const ChatPage = () => {
                     <div ref={messagesEndRef} />
                 </div>
 
-                <div className="p-6 pt-0 z-20">
-                     <div className="bg-black/60 border border-[#f2e8cf]/20 p-2 flex flex-col gap-2 relative backdrop-blur-xl shadow-2xl">
+                <div className="p-3 md:p-6 pt-0 z-20">
+                     <div className="bg-black/60 border border-[#f2e8cf]/20 p-2 flex flex-col gap-2 relative backdrop-blur-xl shadow-2xl rounded-lg">
                          {replyTo && <div className="p-2 bg-white/10 text-[#DAA520] text-xs flex justify-between italic border-l-2 border-[#DAA520]"><span>Reflecting on {replyTo.content}</span><button onClick={() => setReplyTo(null)}>×</button></div>}
                          
-                         <form onSubmit={handleSendMessage} className="flex items-center gap-4 px-2">
-                             <div className="flex gap-3 text-[#f2e8cf]/70">
+                         <form onSubmit={handleSendMessage} className="flex items-center gap-2 md:gap-4 px-2">
+                             <div className="flex gap-2 text-[#f2e8cf]/70">
                                  <MediaUpload onFileSelect={handleFileSelect} />
                                  <button type="button" onClick={() => setShowStickerPicker(!showStickerPicker)} className="hover:text-[#DAA520] transition">✦</button>
                              </div>
@@ -333,7 +336,7 @@ const ChatPage = () => {
                                 value={newMessage} 
                                 onChange={e => setNewMessage(e.target.value)}
                                 placeholder="Transmit thought..."
-                                className="flex-1 bg-transparent border-none focus:ring-0 text-[#f2e8cf] placeholder-[#f2e8cf]/40 font-normal tracking-wider"
+                                className="flex-1 bg-transparent border-none focus:ring-0 text-[#f2e8cf] placeholder-[#f2e8cf]/40 font-normal tracking-wider text-sm md:text-base"
                              />
                              
                              <button type="submit" disabled={!newMessage.trim()} className="text-[#DAA520] font-bold text-xl hover:scale-110 transition disabled:opacity-50 drop-shadow-md">
@@ -345,9 +348,8 @@ const ChatPage = () => {
                 </div>
               </>
           ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-center z-10 p-10">
+              <div className="flex-1 flex flex-col items-center justify-center text-center z-10 p-10 hidden md:flex">
                   <div className="w-48 h-48 border-2 border-[#DAA520] rounded-full flex items-center justify-center mb-8 animate-pulse shadow-[0_0_80px_rgba(218,165,32,0.15)] bg-black/20 backdrop-blur-sm">
-                      {/* Solid Gold SVG Mandala */}
                       <svg viewBox="0 0 24 24" fill="currentColor" className="w-24 h-24 text-[#DAA520] drop-shadow-[0_0_15px_rgba(218,165,32,0.6)]">
                           <path d="M12 2L14.5 9H22L16 13.5L18.5 21L12 16.5L5.5 21L8 13.5L2 9H9.5L12 2Z" fillOpacity="0.8"/>
                           <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="0.5" fill="none"/>
