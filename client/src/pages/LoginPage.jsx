@@ -52,48 +52,48 @@ const LoginPage = () => {
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-900/30 rounded-full mix-blend-screen filter blur-[100px] animate-pulse"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-amber-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-pulse animation-delay-2000"></div>
 
-      <div className="cosmic-card p-12 w-full max-w-lg relative z-10 rounded-full aspect-square flex flex-col items-center justify-center border-2 border-white/5 shadow-[0_0_50px_rgba(218,165,32,0.1)] backdrop-blur-3xl">
+      <div className="cosmic-card p-6 md:p-12 w-[90vw] md:w-full max-w-lg relative z-10 rounded-full aspect-square flex flex-col items-center justify-center border-2 border-white/5 shadow-[0_0_50px_rgba(218,165,32,0.1)] backdrop-blur-3xl">
         
         {/* Header */}
-        <div className="text-center mb-8 mt-4">
-          <div className="text-5xl mb-4 text-[#DAA520] opacity-80 animate-spin-slow" style={{ animationDuration: '20s' }}>
+        <div className="text-center mb-4 md:mb-8 mt-2 md:mt-4">
+          <div className="text-3xl md:text-5xl mb-2 md:mb-4 text-[#DAA520] opacity-80 animate-spin-slow" style={{ animationDuration: '20s' }}>
              ☸
           </div>
-          <h1 className="text-3xl font-spiritual font-bold text-[#f2e8cf] tracking-widest uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          <h1 className="text-xl md:text-3xl font-spiritual font-bold text-[#f2e8cf] tracking-widest uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             Dharmic Marga
           </h1>
-          <p className="text-[#DAA520]/60 text-xs uppercase tracking-[0.5em] mt-2">Connecting Souls</p>
+          <p className="text-[#DAA520]/60 text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.5em] mt-1 md:mt-2">Connecting Souls</p>
         </div>
 
         {step === 1 ? (
-          <form onSubmit={handleSendOtp} className="w-full max-w-xs space-y-6">
+          <form onSubmit={handleSendOtp} className="w-full max-w-[200px] md:max-w-xs space-y-4 md:space-y-6">
             <div className="relative group">
                <input
                 type="tel"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                className="cosmic-input w-full px-6 py-4 rounded-full text-center text-lg placeholder-white/20 bg-black/40 border border-[#DAA520]/30 focus:border-[#DAA520]"
-                placeholder="Connection ID (Phone)"
+                className="cosmic-input w-full px-4 py-3 md:px-6 md:py-4 rounded-full text-center text-sm md:text-lg placeholder-white/20 bg-black/40 border border-[#DAA520]/30 focus:border-[#DAA520]"
+                placeholder="Phone Number"
                 required
               />
             </div>
             
             <button
               type="submit"
-              className="w-full py-4 rounded-full cosmic-btn text-sm uppercase tracking-[0.2em]"
+              className="w-full py-3 md:py-4 rounded-full cosmic-btn text-xs md:text-sm uppercase tracking-[0.2em]"
             >
               Begin Journey
             </button>
           </form>
         ) : (
-          <form onSubmit={handleVerifyOtp} className="w-full max-w-xs space-y-6 fade-in text-center">
+          <form onSubmit={handleVerifyOtp} className="w-full max-w-[200px] md:max-w-xs space-y-4 md:space-y-6 fade-in text-center">
              <div>
-                <p className="text-[#f2e8cf]/60 text-xs mb-4 uppercase tracking-widest">Enter the Key</p>
+                <p className="text-[#f2e8cf]/60 text-[10px] md:text-xs mb-2 md:mb-4 uppercase tracking-widest">Enter the Key</p>
                 <input
                     type="text"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    className="w-full bg-transparent border-b border-[#DAA520]/50 text-center text-4xl text-[#f2e8cf] tracking-[0.5em] py-2 focus:outline-none focus:border-[#DAA520] font-spiritual"
+                    className="w-full bg-transparent border-b border-[#DAA520]/50 text-center text-2xl md:text-4xl text-[#f2e8cf] tracking-[0.3em] md:tracking-[0.5em] py-1 md:py-2 focus:outline-none focus:border-[#DAA520] font-spiritual"
                     placeholder="......"
                     maxLength={6}
                     required
@@ -102,7 +102,7 @@ const LoginPage = () => {
 
             <button
               type="submit"
-              className="w-full py-4 rounded-full cosmic-btn text-sm uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(218,165,32,0.4)]"
+              className="w-full py-3 md:py-4 rounded-full cosmic-btn text-xs md:text-sm uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(218,165,32,0.4)]"
             >
               Enter Sanctuary
             </button>
@@ -110,7 +110,7 @@ const LoginPage = () => {
              <button 
                 type="button" 
                 onClick={() => setStep(1)}
-                className="text-xs text-white/30 hover:text-[#DAA520] transition uppercase tracking-widest mt-4"
+                className="text-[10px] md:text-xs text-white/30 hover:text-[#DAA520] transition uppercase tracking-widest mt-2 md:mt-4"
             >
                 Return
             </button>
