@@ -3,18 +3,27 @@ const redisClient = require('../config/redis');
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { username, avatarUrl, bio } = req.body;
+    const { username, avatarUrl, bio, privacySettings, appSettings } = req.body;
     const user = await User.findByPk(req.user.id);
     
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    user.username = username || user.username;
-    user.avatarUrl = avatarUrl || user.avatarUrl;
-    user.bio = bio || user.bio; // Ensure User model has bio or ignore if not
+    if (username !== undefined) user.username = username;
+    if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
+    if (bio !== undefined) user.bio = bio;
+    
+    // Update Settings (Merge or Replace)
+    if (privacySettings) {
+        user.privacySettings = { ...user.privacySettings, ...privacySettings };
+    }
+    if (appSettings) {
+        user.appSettings = { ...user.appSettings, ...appSettings };
+    }
     
     await user.save();
     res.json(user);
   } catch (error) {
+    console.error('Update profile error:', error);
     res.status(500).json({ message: 'Update failed' });
   }
 };
@@ -33,8 +42,16 @@ exports.getUserStatus = async (req, res) => {
 
     // If no last seen in redis (e.g. server restart), fallback to DB
     if (!lastSeen) {
-        const user = await User.findByPk(userId, { attributes: ['lastSeen'] });
-        lastSeen = user?.lastSeen;
+        const user = await User.findByPk(userId, { attributes: ['lastSeen', 'privacySettings'] });
+        
+        // Check Privacy Settings
+        if (user?.privacySettings?.lastSeen === 'none') {
+            lastSeen = null; // Hide it
+            status = 'offline'; // Hide status too? Usually just last seen.
+        }
+        else {
+             lastSeen = user?.lastSeen;
+        }
     }
 
     res.json({ status, lastSeen });
