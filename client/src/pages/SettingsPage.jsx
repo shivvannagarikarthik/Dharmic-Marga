@@ -184,7 +184,7 @@ const SettingsPage = () => {
         const requestPerm = async () => {
             const res = await Notification.requestPermission();
             setPerm(res);
-            if(res === 'granted') setAppSettings({...appSettings, notificationsKey: true});
+            if(res === 'granted') { setAppSettings({...appSettings, notificationsKey: true}); new Notification('Dharma Test', { body: 'Notifications are active!' }); }
         };
 
         return (
