@@ -22,9 +22,9 @@ const io = new Server(server, {
   }
 });
 
-// Explicit CORS for Express
+// Explicit CORS for Express - Allow ALL for now to fix connection
 app.use(cors({
-  origin: ['https://dharmic-marga.pages.dev', 'http://localhost:5173', 'http://localhost:3000'],
+  origin: true, // Reflects request origin (Allows everyone)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
