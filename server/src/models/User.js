@@ -9,14 +9,13 @@ const User = sequelize.define('User', {
   },
   username: {
     type: DataTypes.STRING,
-    allowNull: true // Username can be set later or default to Phone
+    allowNull: true
   },
   phoneNumber: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true
   },
-  // Deprecated fields kept nullable if migration needed, or just reusing table
   email: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -37,6 +36,26 @@ const User = sequelize.define('User', {
   lastSeen: {
     type: DataTypes.DATE,
     allowNull: true
+  },
+  // NEW: Privacy & App Settings (JSON for flexibility)
+  privacySettings: {
+    type: DataTypes.JSON,
+    defaultValue: {
+      lastSeen: 'everyone', // everyone, contacts, none
+      readReceipts: true,
+      profilePhoto: 'everyone',
+      twoFactorEnabled: false
+    }
+  },
+  appSettings: {
+    type: DataTypes.JSON,
+    defaultValue: {
+      theme: 'cosmic', 
+      wallpaper: 'default',
+      fontSize: 'medium',
+      language: 'en',
+      notificationsKey: true
+    }
   }
 });
 
