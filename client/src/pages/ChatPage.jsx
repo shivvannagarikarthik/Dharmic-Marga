@@ -125,7 +125,7 @@ const ChatPage = () => {
         socket.off('timer_updated');
       }
     };
-  }, [selectedConversation]);
+  }, [selectedConversation, user]);
 
   const loadConversations = async () => {
     try {
