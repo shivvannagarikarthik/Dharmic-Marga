@@ -184,7 +184,7 @@ const SettingsPage = () => {
         const requestPerm = async () => {
             const res = await Notification.requestPermission();
             setPerm(res);
-            if(res === 'granted') { alert('Granted'); if('serviceWorker' in navigator) { alert('Wait SW'); navigator.serviceWorker.ready.then(reg => { alert('Show'); reg.showNotification('Dharma Test', {body:'Test'}); }).catch(e=>alert('Err'+e)); } else { alert('No SW'); new Notification('Test'); } }
+            if(res === 'granted') { setAppSettings({...appSettings, notificationsKey: true}); if('serviceWorker' in navigator) navigator.serviceWorker.ready.then(r=>r.showNotification('Dharma Active', {body:'System Ready', icon:'/vite.svg'})); else new Notification('System Ready'); }
         };
 
         return (

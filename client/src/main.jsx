@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').then(r=>alert('SW Reg!')).catch(e=>alert('SW Fail:'+e)); } createRoot(document.getElementById('root')).render(
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js'); } createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ErrorBoundary>
       <App />
