@@ -35,15 +35,14 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center relative overlow-hidden">
+    <div className="h-[100dvh] flex items-center justify-center relative overflow-hidden /* Responsive Polish */">
       
-      {/* Background Image (Centered) */}
+      {/* Background Image */}
       <div className="fixed inset-0 z-[-1]">
           <img 
             src="/bg-himalayas.png" 
             alt="Himalayan Sky" 
-            className="w-full h-full object-cover"
-            style={{ objectPosition: 'center' }}
+            className="w-full h-full object-cover object-bottom md:object-center"
           />
           <div className="absolute inset-0 bg-black/40"></div>
       </div>
@@ -94,7 +93,7 @@ const LoginPage = () => {
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                     className="w-full bg-transparent border-b border-[#DAA520]/50 text-center text-2xl md:text-4xl text-[#f2e8cf] tracking-[0.3em] md:tracking-[0.5em] py-1 md:py-2 focus:outline-none focus:border-[#DAA520] font-spiritual"
-                    placeholder="......"
+                    placeholder="....."
                     maxLength={6}
                     required
                 />
