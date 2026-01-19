@@ -1,10 +1,9 @@
 const { User, Message, Conversation, ConversationParticipant } = require('../models');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const axios = require('axios'); // Using raw HTTP to debug 404
 
 const BOT_PHONE = '0000000000';
 const BOT_NAME = 'AI Assistant';
 
-// Initialize Bot User
 exports.initBot = async () => {
   try {
     let bot = await User.findOne({ where: { phoneNumber: BOT_PHONE } });
@@ -15,7 +14,6 @@ exports.initBot = async () => {
         bio: 'I am your personal AI assistant. Ask me anything!',
         avatarUrl: 'https://cdn-icons-png.flaticon.com/512/4712/4712027.png'
       });
-      console.log('AI Assistant User Created');
     }
     return bot;
   } catch (err) {
@@ -23,13 +21,11 @@ exports.initBot = async () => {
   }
 };
 
-// Handle Incoming Message
 exports.handleBotMessage = async (message, io) => {
   try {
     const participants = await ConversationParticipant.findAll({ 
         where: { ConversationId: message.conversationId } 
     });
-    
     const bot = await User.findOne({ where: { phoneNumber: BOT_PHONE } });
     if (!bot) return;
 
@@ -43,25 +39,33 @@ exports.handleBotMessage = async (message, io) => {
         replyText = "I need a Brain! (Please add GEMINI_API_KEY to .env)";
     } else {
         try {
-            const genAI = new GoogleGenerativeAI(apiKey);
-            // Reverting to gemini-pro as it is the most stable standard model
-            const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+            // DIRECT REST API CALL
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
             
-            const prompt = `You are a spiritual and helpful AI assistant named 'Dharma Guide'. 
-            Context: The user said: "${message.content}".
-            Answer beautifully, concisely, and with wisdom. If they ask for a joke, tell a spiritual joke.`;
+            const payload = {
+                contents: [{
+                    parts: [{
+                        text: `You are a spiritual AI named 'Dharma Guide'. User said: "${message.content}". Answer wisely.`
+                    }]
+                }]
+            };
+
+            const response = await axios.post(url, payload);
             
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            replyText = response.text();
-        } catch (apiError) {
-            console.error('Gemini API Error:', apiError);
-            if (apiError.message.includes('404')) {
-                replyText = "I am having trouble finding my brain model (404).";
-            } else if (apiError.message.includes('API_KEY')) {
-                replyText = "My API Key is invalid.";
+            if (response.data && response.data.candidates && response.data.candidates[0].content) {
+                replyText = response.data.candidates[0].content.parts[0].text;
             } else {
-                replyText = "I am meditating on that... (Service Error)";
+                replyText = "I heard you, but I have no words.";
+            }
+
+        } catch (apiError) {
+            console.error('Gemini REST API Error:', apiError.response ? apiError.response.data : apiError.message);
+            
+            const errData = apiError.response ? apiError.response.data : {};
+            if (errData.error && errData.error.message) {
+                 replyText = `Error: ${errData.error.message} (Code: ${errData.error.code})`;
+            } else {
+                 replyText = "I am having connection issues. (Check Logs)";
             }
         }
     }
