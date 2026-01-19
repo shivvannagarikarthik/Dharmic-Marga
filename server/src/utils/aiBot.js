@@ -1,5 +1,5 @@
 const { User, Message, Conversation, ConversationParticipant } = require('../models');
-const axios = require('axios'); // Using raw HTTP to debug 404
+const axios = require('axios');
 
 const BOT_PHONE = '0000000000';
 const BOT_NAME = 'AI Assistant';
@@ -37,35 +37,48 @@ exports.handleBotMessage = async (message, io) => {
     
     if (!apiKey) {
         replyText = "I need a Brain! (Please add GEMINI_API_KEY to .env)";
+    } else if (message.content.toLowerCase() === 'system list models') {
+        // DEBUG TOOL: List available models
+        try {
+            const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+            const listResp = await axios.get(listUrl);
+            const models = listResp.data.models
+                .filter(m => m.supportedGenerationMethods.includes('generateContent'))
+                .map(m => m.name.replace('models/', ''))
+                .join(', ');
+            replyText = `Available Models: ${models}`;
+        } catch (err) {
+            replyText = `List Error: ${err.message}`;
+        }
     } else {
         try {
-            // DIRECT REST API CALL
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+            // Trying gemini-1.5-flash as default again (via REST)
+            const modelName = 'gemini-1.5-flash';
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
             
             const payload = {
                 contents: [{
                     parts: [{
-                        text: `You are a spiritual AI named 'Dharma Guide'. User said: "${message.content}". Answer wisely.`
+                        text: `You are a spiritual AI. User: "${message.content}".`
                     }]
                 }]
             };
 
             const response = await axios.post(url, payload);
             
-            if (response.data && response.data.candidates && response.data.candidates[0].content) {
+            if (response.data?.candidates?.[0]?.content) {
                 replyText = response.data.candidates[0].content.parts[0].text;
             } else {
-                replyText = "I heard you, but I have no words.";
+                replyText = "Empty response from AI.";
             }
 
         } catch (apiError) {
             console.error('Gemini REST API Error:', apiError.response ? apiError.response.data : apiError.message);
-            
             const errData = apiError.response ? apiError.response.data : {};
-            if (errData.error && errData.error.message) {
+            if (errData.error) {
                  replyText = `Error: ${errData.error.message} (Code: ${errData.error.code})`;
             } else {
-                 replyText = "I am having connection issues. (Check Logs)";
+                 replyText = "Connection Error (Check Logs)";
             }
         }
     }
