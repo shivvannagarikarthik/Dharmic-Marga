@@ -46,7 +46,7 @@ exports.handleBotMessage = async (message, io) => {
     } else {
         try {
             const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest"});
             
             const prompt = `You are a spiritual and helpful AI assistant named 'Dharma Guide'. 
             Context: The user said: "${message.content}".
