@@ -26,7 +26,6 @@ exports.initBot = async () => {
 // Handle Incoming Message
 exports.handleBotMessage = async (message, io) => {
   try {
-    // 1. Check if bot is recipient
     const participants = await ConversationParticipant.findAll({ 
         where: { ConversationId: message.conversationId } 
     });
@@ -37,7 +36,6 @@ exports.handleBotMessage = async (message, io) => {
     const isBotInConv = participants.some(p => p.UserId === bot.id);
     if (!isBotInConv || message.senderId === bot.id) return;
 
-    // 2. Generate Response
     let replyText = "Thinking...";
     const apiKey = process.env.GEMINI_API_KEY;
     
@@ -46,7 +44,8 @@ exports.handleBotMessage = async (message, io) => {
     } else {
         try {
             const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest"});
+            // Reverting to gemini-pro as it is the most stable standard model
+            const model = genAI.getGenerativeModel({ model: "gemini-pro" });
             
             const prompt = `You are a spiritual and helpful AI assistant named 'Dharma Guide'. 
             Context: The user said: "${message.content}".
@@ -57,12 +56,16 @@ exports.handleBotMessage = async (message, io) => {
             replyText = response.text();
         } catch (apiError) {
             console.error('Gemini API Error:', apiError);
-            if (apiError.message.includes('API_KEY')) replyText = "My API Key is invalid.";
-            else replyText = "I am meditating on that... (Service Error)";
+            if (apiError.message.includes('404')) {
+                replyText = "I am having trouble finding my brain model (404).";
+            } else if (apiError.message.includes('API_KEY')) {
+                replyText = "My API Key is invalid.";
+            } else {
+                replyText = "I am meditating on that... (Service Error)";
+            }
         }
     }
     
-    // 3. Send Reply
     const reply = await Message.create({
         conversationId: message.conversationId,
         senderId: bot.id,
