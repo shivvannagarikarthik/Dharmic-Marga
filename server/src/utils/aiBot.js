@@ -1,4 +1,5 @@
 const { User, Message, Conversation, ConversationParticipant } = require('../models');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const BOT_PHONE = '0000000000';
 const BOT_NAME = 'AI Assistant';
@@ -12,7 +13,7 @@ exports.initBot = async () => {
         username: BOT_NAME,
         phoneNumber: BOT_PHONE,
         bio: 'I am your personal AI assistant. Ask me anything!',
-        avatarUrl: 'https://cdn-icons-png.flaticon.com/512/4712/4712027.png' // Robot Icon
+        avatarUrl: 'https://cdn-icons-png.flaticon.com/512/4712/4712027.png'
       });
       console.log('AI Assistant User Created');
     }
@@ -26,7 +27,6 @@ exports.initBot = async () => {
 exports.handleBotMessage = async (message, io) => {
   try {
     // 1. Check if bot is recipient
-    // Get conversation participants
     const participants = await ConversationParticipant.findAll({ 
         where: { ConversationId: message.conversationId } 
     });
@@ -34,48 +34,51 @@ exports.handleBotMessage = async (message, io) => {
     const bot = await User.findOne({ where: { phoneNumber: BOT_PHONE } });
     if (!bot) return;
 
-    // Check if bot is in conversation AND message is NOT from bot
     const isBotInConv = participants.some(p => p.UserId === bot.id);
     if (!isBotInConv || message.senderId === bot.id) return;
 
-    // 2. Simulate Thinking (Typing indicator)
+    // 2. Generate Response
+    let replyText = "Thinking...";
+    const apiKey = process.env.GEMINI_API_KEY;
     
-    // 3. Generate Response
-    const replyText = generateResponse(message.content);
+    if (!apiKey) {
+        replyText = "I need a Brain! (Please add GEMINI_API_KEY to .env)";
+    } else {
+        try {
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+            
+            const prompt = `You are a spiritual and helpful AI assistant named 'Dharma Guide'. 
+            Context: The user said: "${message.content}".
+            Answer beautifully, concisely, and with wisdom. If they ask for a joke, tell a spiritual joke.`;
+            
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            replyText = response.text();
+        } catch (apiError) {
+            console.error('Gemini API Error:', apiError);
+            if (apiError.message.includes('API_KEY')) replyText = "My API Key is invalid.";
+            else replyText = "I am meditating on that... (Service Error)";
+        }
+    }
     
-    // 4. Send Reply after delay
-    setTimeout(async () => {
-       const reply = await Message.create({
-           conversationId: message.conversationId,
-           senderId: bot.id,
-           content: replyText,
-           type: 'text',
-           status: 'sent',
-           readBy: []
-       });
+    // 3. Send Reply
+    const reply = await Message.create({
+        conversationId: message.conversationId,
+        senderId: bot.id,
+        content: replyText,
+        type: 'text',
+        status: 'sent',
+        readBy: []
+    });
 
-       // Broadcast
-       const fullMessage = await Message.findByPk(reply.id, {
-           include: [{ model: User, attributes: ['id', 'username', 'avatarUrl'] }]
-       });
-       
-       io.to(message.conversationId).emit('new_message', fullMessage);
-
-    }, 1500 + Math.random() * 1000); // 1.5 - 2.5s delay
+    const fullMessage = await Message.findByPk(reply.id, {
+        include: [{ model: User, attributes: ['id', 'username', 'avatarUrl'] }]
+    });
+    
+    io.to(message.conversationId).emit('new_message', fullMessage);
 
   } catch (err) {
     console.error('Bot handler error', err);
   }
 };
-
-function generateResponse(text) {
-    const lower = text.toLowerCase();
-    
-    if (lower.includes('hello') || lower.includes('hi')) return "Hello! How can I help you today? 🤖";
-    if (lower.includes('help')) return "I can help you with:\n1. App features\n2. Life advice\n3. Jokes\nJust ask!";
-    if (lower.includes('joke')) return "Why did the programmer quit his job? because he didn't get arrays. 😂";
-    if (lower.includes('features')) return "This app has Voice Calls, Video Calls, Groups, and me! 🚀";
-    if (lower.includes('who are you')) return "I am Dharmic Marga's AI Assistant.";
-    
-    return "That's interesting! Tell me more. (I'm a simple demo bot, but I'm learning!)";
-}
