@@ -52,14 +52,14 @@ exports.handleBotMessage = async (message, io) => {
         }
     } else {
         try {
-            // Trying gemini-1.5-flash as default again (via REST)
-            const modelName = 'gemini-1.5-flash';
+            // Using 'gemini-flash-latest' as confirmed valid by user diagnostic
+            const modelName = 'gemini-flash-latest';
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
             
             const payload = {
                 contents: [{
                     parts: [{
-                        text: `You are a spiritual AI. User: "${message.content}".`
+                        text: `You are a spiritual AI named 'Dharma Guide'. User said: "${message.content}". Answer wisely.`
                     }]
                 }]
             };
@@ -69,7 +69,7 @@ exports.handleBotMessage = async (message, io) => {
             if (response.data?.candidates?.[0]?.content) {
                 replyText = response.data.candidates[0].content.parts[0].text;
             } else {
-                replyText = "Empty response from AI.";
+                replyText = "I felt that, but I have no words.";
             }
 
         } catch (apiError) {
