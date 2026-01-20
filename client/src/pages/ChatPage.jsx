@@ -63,7 +63,7 @@ const ChatPage = () => {
     loadConversations();
     const socket = getSocket();
     if (socket) {
-      socket.on('new_message', (message) => { alert('My ID: ' + user?.id + '
+      socket.on('new_message', (message) => { if (Notification.permission === 'granted' && String(message.senderId) !== String(user?.id)) { if ('serviceWorker' in navigator) navigator.serviceWorker.ready.then(reg => reg.showNotification('Dharma Message', { body: message.content, icon: '/vite.svg', vibrate: [200] })); else new Notification('Dharma Message', { body: message.content, icon: '/vite.svg' }); }
 Sender ID: ' + message.senderId); if (Notification.permission === 'granted' && String(message.senderId) !== String(user?.id)) { if ('serviceWorker' in navigator) navigator.serviceWorker.ready.then(reg => reg.showNotification('Dharma Message', { body: message.content, icon: '/vite.svg', vibrate: [200] })); else new Notification('Dharma Message', { body: message.content, icon: '/vite.svg' }); }
         if (selectedConversation && message.conversationId === selectedConversation.id) {
           setMessages((prev) => [...prev, message]);
