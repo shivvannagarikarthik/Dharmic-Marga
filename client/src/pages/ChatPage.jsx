@@ -101,97 +101,99 @@ const ChatPage = () => {
     };
 
     return (
-        <div className='h-screen flex text-[#f2e8cf] bg-black overflow-hidden'>
-            {/* Sidebar */}
-            <div className='w-80 flex flex-col border-r border-[#f2e8cf]/20 bg-[#050505]'>
+        <div className='h-screen flex bg-[#050505] overflow-hidden font-sans text-[#f2e8cf]'>
+            {/* Sidebar (Cosmic Glass) */}
+            <div className='w-80 flex flex-col border-r border-[#DAA520]/20 bg-[#0d0d15]/90 backdrop-blur-md relative z-10'>
 
-                {/* 1. Sidebar Header (Fixed at top) */}
-                <div className='p-4 border-b border-[#f2e8cf]/10'>
-                    <h1 className='text-xl font-bold mb-4 text-[#DAA520] tracking-wider'>Dharmic Marga</h1>
-                    <div className='flex gap-2'>
+                {/* 1. Sidebar Header (User Identity + Ask Dharma) */}
+                <div className='p-6 border-b border-[#DAA520]/10'>
+                    <div className='flex items-center justify-between mb-6'>
+                        <div className='flex items-center gap-3'>
+                            <div className='w-10 h-10 rounded-full border border-[#DAA520] flex items-center justify-center text-[#DAA520] font-spiritual text-lg'>
+                                {user?.username?.[0]?.toUpperCase()}
+                            </div>
+                            <span className='font-spiritual text-[#DAA520] tracking-widest text-lg uppercase'>{user?.username || 'SEEKER'}</span>
+                        </div>
+                        <button onClick={logout} className="text-[#DAA520]/50 hover:text-red-400 transition">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                        </button>
+                    </div>
+
+                    <div className='flex gap-3'>
                         <button
-                            className='flex-1 py-2 bg-[#DAA520] text-black rounded font-bold hover:bg-[#b8860b] transition shadow-lg'
+                            className='flex-1 py-3 border border-[#DAA520] text-[#DAA520] text-xs font-spiritual tracking-[2px] hover:bg-[#DAA520] hover:text-black transition-all duration-500 shadow-[0_0_10px_rgba(218,165,32,0.1)] hover:shadow-[0_0_20px_rgba(218,165,32,0.4)]'
                             onClick={() => setShowNewChatModal(true)}
                         >
-                            NEW CHAT
+                            ASK DHARMA
                         </button>
                         <button
-                            className='flex-1 py-2 bg-transparent text-[#DAA520] border border-[#DAA520] rounded font-bold hover:bg-[#DAA520]/10 transition'
+                            className='w-10 flex items-center justify-center border border-[#DAA520]/30 text-[#DAA520] hover:bg-[#DAA520]/10 transition'
                             onClick={() => setShowCreateGroupModal(true)}
                         >
-                            GROUP
+                            +
                         </button>
                     </div>
                 </div>
 
-                {/* 2. Sidebar List (Scrollable middle) */}
-                <div className='flex-1 overflow-y-auto custom-scrollbar p-2'>
-                    {conversations.length === 0 && (
-                        <div className="text-center text-gray-500 mt-10">No chats yet</div>
-                    )}
+                {/* 2. Sidebar List */}
+                <div className='flex-1 overflow-y-auto custom-scrollbar p-0'>
                     {conversations.map(c => (
                         <div
                             key={c.id}
-                            className={`p-3 mb-1 rounded flex flex-col cursor-pointer transition ${selectedConversation?.id === c.id ? 'bg-[#DAA520]/20 border border-[#DAA520]/30' : 'hover:bg-white/5 border border-transparent'}`}
+                            className={`p-4 border-b border-[#DAA520]/5 cursor-pointer transition-all duration-300 hover:bg-[#DAA520]/5 ${selectedConversation?.id === c.id ? 'bg-[#DAA520]/10 border-l-2 border-l-[#DAA520]' : 'border-l-2 border-l-transparent'}`}
                             onClick={() => setSelectedConversation(c)}
                         >
-                            <div className='font-bold text-[#f2e8cf]'>{c.name}</div>
-                            <div className='text-xs text-gray-400 flex justify-between'>
-                                <span>{c.isGroup ? 'Group' : 'Direct Message'}</span>
-                                {c.lastMessage && <span>{new Date(c.lastMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
+                            <div className='flex items-center gap-4'>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${c.isGroup ? 'bg-indigo-900/50 text-indigo-300' : 'bg-[#1a1b41] text-[#DAA520]'}`}>
+                                    {c.isGroup ? 'GRP' : c.name.substring(0, 2).toUpperCase()}
+                                </div>
+                                <div className='flex-1'>
+                                    <div className='font-spiritual text-sm text-[#f2e8cf] tracking-wide'>{c.name}</div>
+                                    <div className='text-[10px] text-[#DAA520]/60 mt-1 uppercase tracking-wider'>{c.isGroup ? 'Sacred Circle' : 'Connection'}</div>
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                {/* 3. Sidebar Footer (Fixed at bottom) */}
-                <div className='p-4 border-t border-[#f2e8cf]/10 bg-[#0a0a0a]'>
-                    <div className='flex items-center justify-between mb-2'>
-                        <div className='flex items-center gap-2'>
-                            <div className='w-8 h-8 rounded-full bg-[#DAA520] flex items-center justify-center text-black font-bold'>
-                                {user?.username?.[0]?.toUpperCase()}
-                            </div>
-                            <div className='text-sm font-medium'>{user?.username}</div>
-                        </div>
-                    </div>
-                    <div className='flex gap-2 mt-3'>
-                        <button
-                            onClick={() => navigate('/settings')}
-                            className='flex-1 py-1.5 text-xs text-[#DAA520] border border-[#DAA520]/50 rounded hover:bg-[#DAA520]/10 transition flex items-center justify-center gap-1'
-                        >
-                            <span>⚙️</span> Settings
-                        </button>
-                        <button
-                            onClick={logout}
-                            className='flex-1 py-1.5 text-xs text-red-400 border border-red-500/30 rounded hover:bg-red-500/10 transition'
-                        >
-                            Logout
-                        </button>
-                    </div>
+                {/* 3. Footer (Settings) */}
+                <div className='p-4 border-t border-[#DAA520]/10 bg-[#0d0d15]/50'>
+                    <button
+                        onClick={() => navigate('/settings')}
+                        className='w-full py-2 text-[10px] text-[#DAA520]/60 hover:text-[#DAA520] tracking-[2px] uppercase transition flex items-center justify-center gap-2'
+                    >
+                        <span>⚙️</span> Configure Reality
+                    </button>
                 </div>
             </div>
 
-            {/* Chat Area */}
-            <div className='flex-1 flex flex-col bg-[#0a0a0a] relative'>
+            {/* Main Area (The Void) */}
+            <div className='flex-1 flex flex-col relative'>
+                {/* Background Image Layer */}
+                <div className="absolute inset-0 bg-[url('/bg-om-cosmic.png')] bg-cover bg-center opacity-60"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80"></div>
+
                 {selectedConversation ? (
-                    <>
-                        <div className='h-16 border-b border-[#f2e8cf]/20 flex items-center px-6 bg-[#111] shadow-md z-10'>
-                            <h2 className='text-xl font-bold text-[#f2e8cf]'>{selectedConversation.name}</h2>
+                    <div className="relative z-10 flex flex-col h-full bg-black/60 backdrop-blur-sm">
+                        {/* Header */}
+                        <div className='h-20 border-b border-[#DAA520]/20 flex items-center px-8 bg-[#0d0d15]/80'>
+                            <h2 className='text-2xl font-spiritual text-[#DAA520] tracking-widest'>{selectedConversation.name}</h2>
                         </div>
 
-                        <div className='flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-black/50'>
+                        {/* Messages */}
+                        <div className='flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar'>
                             {messages.map(msg => {
                                 const isMe = msg.sender.id === user.id;
                                 return (
                                     <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                        <div className={`max-w-[70%] p-3 rounded-lg relative group shadow-sm ${isMe ? 'bg-[#DAA520] text-black rounded-tr-none' : 'bg-[#222] text-[#f2e8cf] rounded-tl-none'}`}>
-                                            <div className='break-words'>{msg.text}</div>
-                                            <div className='text-[10px] opacity-70 mt-1 flex justify-end items-center gap-1'>
+                                        <div className={`max-w-[70%] p-4 rounded-xl relative group shadow-[0_4px_20px_rgba(0,0,0,0.3)] border border-[#DAA520]/10 ${isMe ? 'bg-[#DAA520]/10 text-[#f2e8cf] rounded-tr-none' : 'bg-[#1a1b41]/60 text-[#f2e8cf] rounded-tl-none'}`}>
+                                            <div className='text-sm leading-relaxed'>{msg.text}</div>
+                                            <div className='text-[9px] text-[#DAA520]/50 mt-2 flex justify-end items-center gap-2 font-mono'>
                                                 {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 {isMe && <span>✓</span>}
                                             </div>
 
-                                            <div className='absolute top-0 -right-8 opacity-0 group-hover:opacity-100 transition'>
+                                            <div className='absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 transition'>
                                                 <MessageActions
                                                     message={msg}
                                                     isMe={isMe}
@@ -208,30 +210,43 @@ const ChatPage = () => {
                             <div ref={messagesEndRef} />
                         </div>
 
-                        <div className='p-4 bg-[#111] border-t border-[#f2e8cf]/20'>
-                            <form onSubmit={handleSendMessage} className='flex items-center gap-2'>
+                        {/* Input Area */}
+                        <div className='p-6 bg-[#0d0d15]/90 border-t border-[#DAA520]/20'>
+                            <form onSubmit={handleSendMessage} className='flex items-center gap-4'>
                                 <MediaUpload onFileSelect={(file) => console.log('File selected:', file)} />
 
                                 <input
                                     type='text'
-                                    className='flex-1 bg-[#222] text-[#f2e8cf] border-none rounded-full px-4 py-2 focus:ring-1 focus:ring-[#DAA520] outline-none placeholder-gray-600'
-                                    placeholder='Type a message...'
+                                    className='flex-1 bg-white/5 text-[#f2e8cf] border border-[#DAA520]/20 rounded-full px-6 py-3 focus:border-[#DAA520] focus:ring-1 focus:ring-[#DAA520] outline-none placeholder-[#DAA520]/20 font-spiritual text-sm tracking-wide transition-all'
+                                    placeholder='Broadcast your message...'
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
                                 />
 
-                                <button type='submit' className='p-2 bg-[#DAA520] rounded-full text-black hover:bg-[#b8860b] transition disabled:opacity-50' disabled={!newMessage.trim()}>
+                                <button type='submit' className='p-3 bg-[#DAA520] rounded-full text-black hover:bg-[#FFD700] hover:shadow-[0_0_15px_rgba(218,165,32,0.6)] transition disabled:opacity-50 disabled:shadow-none' disabled={!newMessage.trim()}>
                                     <svg className="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                                     </svg>
                                 </button>
                             </form>
                         </div>
-                    </>
+                    </div>
                 ) : (
-                    <div className='flex-1 flex flex-col items-center justify-center text-[#f2e8cf]/30'>
-                        <div className='text-6xl mb-4 opacity-50'>🕉️</div>
-                        <div className='text-xl font-light'>Select a chat to begin your journey</div>
+                    <div className='flex-1 flex flex-col items-center justify-center text-[#DAA520] relative z-10'>
+                        {/* Center Visual */}
+                        <div className="w-64 h-64 rounded-full border border-[#DAA520]/30 flex items-center justify-center relative animate-[spin_60s_linear_infinite]">
+                            <div className="absolute inset-0 border border-[#DAA520]/10 rounded-full scale-125"></div>
+                            <div className="absolute inset-0 border border-[#DAA520]/5 rounded-full scale-150"></div>
+                            <span className="text-6xl filter drop-shadow-[0_0_15px_rgba(218,165,32,0.5)]">🕉️</span>
+                        </div>
+
+                        <div className='mt-12 text-center space-y-4'>
+                            <h1 className='text-4xl font-spiritual tracking-[0.5em] text-transparent bg-clip-text bg-gradient-to-r from-[#DAA520] via-[#f2e8cf] to-[#DAA520] drop-shadow-sm'>V O I D</h1>
+                            <p className='text-xs text-[#DAA520]/60 tracking-[0.2em] font-light max-w-md mx-auto leading-loose'>
+                                SELECT A CONNECTION TO BEGIN TRANSMISSION.<br />
+                                SILENCE IS ALSO AN ANSWER.
+                            </p>
+                        </div>
                     </div>
                 )}
             </div>
