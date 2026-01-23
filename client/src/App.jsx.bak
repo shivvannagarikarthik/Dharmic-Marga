@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import ChatPage from './pages/ChatPage';
-import SettingsPage from './pages/SettingsPage'; 
+// import SettingsPage from './pages/SettingsPage'; 
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -11,13 +11,13 @@ const PrivateRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className='flex h-screen items-center justify-center bg-gray-900 text-white text-2xl font-bold'>
+      <div className="flex h-screen items-center justify-center bg-gray-900 text-white text-2xl font-bold">
         Loading Authentication...
       </div>
     );
   }
 
-  return user ? children : <Navigate to='/login' />;
+  return user ? children : <Navigate to="/login" />;
 };
 
 function App() {
@@ -26,25 +26,25 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
-            <Route path='/login' element={<LoginPage />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route
-              path='/chat'
+              path="/chat"
               element={
                 <PrivateRoute>
                   <ChatPage />
                 </PrivateRoute>
               }
             />
-            <Route 
-              path='/settings' 
+            {/* <Route 
+              path="/settings" 
               element={
                 <PrivateRoute>
-                  <SettingsPage />
+                   // <SettingsPage />
                 </PrivateRoute>
               } 
-            />
-            <Route path='/' element={<Navigate to='/login' />} />
-            <Route path='*' element={<div className='text-white'>404 Not Found</div>} />
+            /> */}
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="*" element={<div className="text-white">404 Not Found</div>} />
           </Routes>
         </Router>
       </AuthProvider>
