@@ -26,10 +26,8 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         if (allowedOrigins.indexOf(origin) === -1) {
-            // Temporarily allow all for debugging, but log it
             console.log('CORS blocked (logging only mode):', origin);
             return callback(null, true);
         }
@@ -61,8 +59,9 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const userRoutes = require('./routes/userRoutes');
 
+// MOUNTING FIX: Chat routes mounted at /api so /api/conversations works
 app.use('/api/auth', authRoutes);
-app.use('/api/chat', chatRoutes);
+app.use('/api', chatRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api', uploadRoutes);
@@ -83,7 +82,7 @@ const PORT = process.env.PORT || 3000;
 
 async function startServer() {
     try {
-        // REDIS OPTIONAL - Commented out to prevent crash if Redis is missing
+        // REDIS OPTIONAL
         // if (!redisClient.isOpen) await redisClient.connect();
 
         await sequelize.authenticate();
