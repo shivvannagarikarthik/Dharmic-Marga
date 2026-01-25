@@ -1,22 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const chatController = require('../controllers/chatController');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 
-// Search
-router.get('/users/search', authenticateToken, chatController.searchUsers);
-// Bot
-router.get('/bot', authenticateToken, chatController.getBotUser);
+router.use(protect);
 
-// Conversations
-router.get('/conversations', authenticateToken, chatController.getConversations);
-router.post('/conversations', authenticateToken, chatController.createConversation);
+router.get('/users/search', chatController.searchUsers);
+router.get('/bot', chatController.getBotUser); // Added Route
+router.get('/conversations', chatController.getConversations);
+router.get('/conversations/:conversationId/messages', chatController.getMessages);
+router.post('/messages', chatController.sendMessage);
+router.post('/conversations', chatController.createConversation);
 
-// Messages
-router.get('/messages/:conversationId', authenticateToken, chatController.getMessages);
-router.post('/messages', authenticateToken, chatController.sendMessage);
-router.delete('/messages/:messageId', authenticateToken, chatController.deleteMessage); // Added delete
-router.put('/messages/:messageId', authenticateToken, chatController.editMessage); // Added edit
-router.post('/messages/:messageId/react', authenticateToken, chatController.reactToMessage); // Added react
+// Message Actions
+router.delete('/messages/:messageId', chatController.deleteMessage);
+router.put('/messages/:messageId', chatController.editMessage);
+router.post('/messages/:messageId/react', chatController.reactToMessage);
 
 module.exports = router;
