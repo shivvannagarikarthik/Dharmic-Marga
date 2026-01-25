@@ -155,9 +155,12 @@ exports.createConversation = async (req, res) => {
         if (commonIds.length > 0) {
             conversation = await Conversation.findOne({
                 where: {
-                    id: commonIds,
+                    id: { [Op.in]: commonIds },
                     type: 'private'
-                }
+                },
+                include: [
+                    { model: User, attributes: ['id', 'username', 'avatarUrl'] }
+                ]
             });
         }
 
@@ -171,13 +174,20 @@ exports.createConversation = async (req, res) => {
             return res.status(404).json({ message: 'Recipient not found' });
         }
 
-        conversation = await Conversation.create({
+        const newConversation = await Conversation.create({
             name: recipient.username,
             type: 'private'
         });
 
-        await ConversationParticipant.create({ ConversationId: conversation.id, UserId: senderId });
-        await ConversationParticipant.create({ ConversationId: conversation.id, UserId: recipientId });
+        await ConversationParticipant.create({ ConversationId: newConversation.id, UserId: senderId });
+        await ConversationParticipant.create({ ConversationId: newConversation.id, UserId: recipientId });
+
+        // Reload to include Users
+        conversation = await Conversation.findByPk(newConversation.id, {
+            include: [
+                { model: User, attributes: ['id', 'username', 'avatarUrl'] }
+            ]
+        });
 
         res.status(201).json(conversation);
 
