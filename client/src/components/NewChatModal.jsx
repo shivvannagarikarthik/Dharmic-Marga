@@ -30,7 +30,15 @@ const NewChatModal = ({ onClose, onChatCreated }) => {
             onClose();
         } catch (err) {
             console.error("Failed to start chat:", err);
-            alert("Failed to start conversation. Please check console for details.");
+            // Show detailed error to help debugging
+            const errorMessage = err.response?.data?.message || err.message || "Unknown Error";
+
+            // Helpful message for USER based on known error codes
+            if (err.message === "Network Error") {
+                alert(`Error: Connection Failed. Please wait for the server to wake up (it spins down when inactive). Status: ${err.response?.status || 'Network Error'}`);
+            } else {
+                alert(`Error: ${errorMessage}. Status: ${err.response?.status}`);
+            }
         }
     };
 
