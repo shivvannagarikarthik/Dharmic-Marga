@@ -116,13 +116,14 @@ exports.getMessages = async (req, res) => {
 // Send a message
 exports.sendMessage = async (req, res) => {
     try {
-        const { conversationId, content, type, replyToId } = req.body;
+        const { conversationId, content, text, type, replyToId } = req.body;
         const senderId = req.user.id;
+        const messageContent = content || text; // Handle both keys (Frontend sends 'text')
 
         const message = await Message.create({
             conversationId,
             senderId,
-            content,
+            content: messageContent,
             type: type || 'text',
             status: 'sent',
             replyToId: replyToId || null
