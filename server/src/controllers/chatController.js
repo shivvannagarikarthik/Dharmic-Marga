@@ -1,5 +1,6 @@
 const { User, Conversation, Message, ConversationParticipant } = require('../models');
 const { Op } = require('sequelize');
+const aiBot = require('../utils/aiBot'); // Added Import
 
 // Search users
 exports.searchUsers = async (req, res) => {
@@ -132,6 +133,12 @@ exports.sendMessage = async (req, res) => {
         const fullMessage = await Message.findByPk(message.id, {
             include: [{ model: User, attributes: ['id', 'username', 'avatarUrl'] }]
         });
+
+        // TRIGGER AI BOT & REAL-TIME UPDATE
+        if (req.io) {
+            req.io.to(conversationId).emit('new_message', fullMessage);
+            aiBot.handleBotMessage(message, req.io);
+        }
 
         const msg = fullMessage.toJSON();
         const formattedMessage = {

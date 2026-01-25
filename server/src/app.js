@@ -45,6 +45,12 @@ const io = new Server(server, {
     }
 });
 
+// Middleware: Attach IO to request so controllers can use it
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
+
 app.use(express.json());
 
 // Request Logger
