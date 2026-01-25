@@ -15,26 +15,44 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*", // Socket.io CORS
-    methods: ["GET", "POST"]
-  }
-});
 
-// Explicit CORS for Express - Allow ALL for now to fix connection
+// Explicit CORS for Express
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://dharmic-marga.pages.dev',
+    'https://dharmic-marga.onrender.com'
+];
+
 app.use(cors({
-  origin: true, // Reflects request origin (Allows everyone)
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            // Temporarily allow all for debugging, but log it
+            console.log('CORS blocked (logging only mode):', origin);
+            return callback(null, true);
+        }
+        return callback(null, true);
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true
 }));
+
+const io = new Server(server, {
+    cors: {
+        origin: allowedOrigins,
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
 
 app.use(express.json());
 
 // Request Logger
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
 });
 
 const authRoutes = require('./routes/authRoutes');
@@ -50,7 +68,13 @@ app.use('/api/users', userRoutes);
 app.use('/api', uploadRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Dharmic Marga API is running');
+    res.send('Dharmic Marga API is running');
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error('Unhandled Error:', err);
+    res.status(500).json({ message: 'Internal Server Error', error: err.message });
 });
 
 initializeSocket(io, redisClient);
@@ -58,26 +82,26 @@ initializeSocket(io, redisClient);
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
-  try {
-    // REDIS OPTIONAL - Commented out to prevent crash if Redis is missing
-    // if (!redisClient.isOpen) await redisClient.connect();
-    
-    await sequelize.authenticate();
-    console.log('Database connected.');
-    
-    await sequelize.sync({ alter: true });
-    console.log('Database synced.');
-    
-    // Bot initialization needs DB
-    await aiBot.initBot(); 
-    startCleanupJob(); 
+    try {
+        // REDIS OPTIONAL - Commented out to prevent crash if Redis is missing
+        // if (!redisClient.isOpen) await redisClient.connect();
 
-    server.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error('Unable to start server:', error);
-  }
+        await sequelize.authenticate();
+        console.log('Database connected.');
+
+        await sequelize.sync({ alter: true });
+        console.log('Database synced.');
+
+        // Bot initialization needs DB
+        await aiBot.initBot();
+        startCleanupJob();
+
+        server.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Unable to start server:', error);
+    }
 }
 
 startServer();
