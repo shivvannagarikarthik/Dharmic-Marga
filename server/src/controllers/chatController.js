@@ -95,7 +95,18 @@ exports.getMessages = async (req, res) => {
             order: [['createdAt', 'ASC']]
         });
 
-        res.json(messages);
+        // Normalize for frontend (text, sender, timestamp)
+        const formattedMessages = messages.map(m => {
+            const msg = m.toJSON();
+            return {
+                ...msg,
+                text: msg.content,
+                timestamp: msg.createdAt,
+                sender: msg.User
+            };
+        });
+
+        res.json(formattedMessages);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
@@ -121,7 +132,15 @@ exports.sendMessage = async (req, res) => {
             include: [{ model: User, attributes: ['id', 'username', 'avatarUrl'] }]
         });
 
-        res.status(201).json(fullMessage);
+        const msg = fullMessage.toJSON();
+        const formattedMessage = {
+            ...msg,
+            text: msg.content,
+            timestamp: msg.createdAt,
+            sender: msg.User
+        };
+
+        res.status(201).json(formattedMessage);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
