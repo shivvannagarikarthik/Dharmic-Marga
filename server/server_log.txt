@@ -1,0 +1,12 @@
+
+> server@1.0.0 start
+> node index.js
+
+[dotenv@17.2.3] injecting env (9) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+Using Redis at: redis://localhost:6379
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+Database connected.
+Database synced.
+Message Cleanup Job Started (Every 1m)
+Server running on port 3000
